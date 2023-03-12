@@ -1,7 +1,27 @@
 #!/bin/sh
 
-# Curl shell script to connect to OpenAI ChatGPT API.
-# Print the result's first choice's message content.
+##
+# Curl shell script to connect to the OpenAI ChatGPT API,
+# and print the result's choice's message content as text.
+#
+# Syntax:
+#
+#     curl-chatgpt <content>
+#
+# Example:
+#
+#     curl-chatgpt "What is the meaning of life?"
+#
+# ## Setup
+#
+# To use this program, you need to first do this:
+#
+#   1. Get your own OpenAI ChatGPT API key from
+#      https://platform.openai.com/account/api-keys
+#
+#   2. Export the key into your local environment:
+#      export OPENAI_API_KEY=<KEY>
+##
 
 # Set safeguards
 set -euf
