@@ -3,13 +3,82 @@
 # Curl shell script to connect to OpenAI ChatGPT API.
 # Print the result's first choice's message content.
 
+# Set safeguards
 set -euf
 
-curl -s https://api.openai.com/v1/chat/completions \
- -H "Authorization: Bearer $OPENAI_API_KEY" \
- -H "Content-Type: application/json" \
- -d "{
- \"model\": \"gpt-3.5-turbo\",
- \"messages\": [{\"role\": \"user\", \"content\": \"$1\"}] 
- }" | 
- jq -r '.choices[0].message.content'
+##
+# Exit codes
+##
+
+# Exit is OK i.e the program run is a success.
+EX_OK=0
+
+# A service is unavailable. This can occur if a support program or file does not
+# exist. This can also be used as a catchall message when something you wanted
+# to do does not work, but you do not know why.
+EX_UNAVAILABLE=69
+
+## 
+# Utilties from https://github.com/sixarm/sixarm-unix-shell-functions
+##
+
+# die: print error message to stderr, then exit with error code.
+#
+# Example:
+# ```
+# die 1 "my message"
+# STDERR=> my message
+# => exit 1
+# ```
+die() {
+        n="$1" ; shift ; >&2 printf %s\\n "$*" ; exit "$n"
+}
+
+# cmd: return true iff a command exists.
+#
+# Example:
+# ```
+# cmd grep
+# => true
+#
+# cmd curl
+# => false
+# ```
+cmd() {
+        command -v "$1" >/dev/null 2>&1
+}
+
+# cmd_or_die: ensure a command exists.
+#
+# Example:
+# ```
+# cmd_or_die grep
+# => true
+#
+# cmd_or_die curl
+# STDERR=> Command needed: curl
+# => exit 1
+# ```
+cmd_or_die() {
+        cmd "$1" || die "$EX_UNAVAILABLE" "Command needed: $1"
+}
+
+##
+# Core
+##
+
+curl_chatgpt() {
+    curl -s https://api.openai.com/v1/chat/completions \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{
+    \"model\": \"gpt-3.5-turbo\",
+    \"messages\": [{\"role\": \"user\", \"content\": \"$1\"}] 
+    }" | 
+    jq -r '.choices[0].message.content'
+}
+
+cmd_or_die curl
+cmd_or_die jq
+curl_chatgpt "$1"
+exit $EX_OK
