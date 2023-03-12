@@ -100,5 +100,9 @@ curl_chatgpt() {
 
 cmd_or_die curl
 cmd_or_die jq
-curl_chatgpt "$1"
+
+for content in "$@"; do
+    curl_chatgpt "$content"
+done
+
 exit $EX_OK
