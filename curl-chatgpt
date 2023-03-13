@@ -49,21 +49,17 @@ To use this program, you need to first do this:
 EOF
 }
 
-##
-# Exit codes
-##
-
-# Exit is OK i.e the program run is a success.
-EX_OK=0
-
-# A service is unavailable. This can occur if a support program or file does not
-# exist. This can also be used as a catchall message when something you wanted
-# to do does not work, but you do not know why.
-EX_UNAVAILABLE=69
-
 ## 
 # Utilties from https://github.com/sixarm/sixarm-unix-shell-functions
 ##
+
+# Exit code: OK i.e the program run is a success.
+EX_OK=0
+
+# Exit code: a service is unavailable. This can occur if a support program or
+# file does not exist. This can also be used as a catchall message when
+# something you wanted to do does not work, but you do not know why.
+EX_UNAVAILABLE=69
 
 # out: print output message to stdout.
 #
@@ -131,8 +127,26 @@ cmd_or_die() {
 # Core
 ##
 
+curl_cmd() {
+    case $verbose in
+        0)
+            out "curl --silent"
+            ;;
+        1)
+            out "curl"
+            ;;
+        *)
+            out "curl --verbose"
+            ;;
+    esac
+    out "curl"
+}
+
 curl_chatgpt() {
-    curl -s https://api.openai.com/v1/chat/completions \
+    if [ $verbose -gt 1 ]; then
+        set -x
+    fi
+    $(curl_cmd) https://api.openai.com/v1/chat/completions \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d "{
@@ -140,13 +154,15 @@ curl_chatgpt() {
     \"messages\": [{\"role\": \"user\", \"content\": \"$1\"}] 
     }" | 
     jq -r '.choices[0].message.content'
+    set +x
 }
 
 cmd_or_die curl
 cmd_or_die jq
+verbose=0
 
 # Process command line options
-while :; do
+while [ $# -gt 0 ]; do
     case $1 in
         # Two hyphens ends the options parsing
         --)
@@ -155,40 +171,64 @@ while :; do
             ;;
         # Print help by calling a help() function that you define later
         -h|--help)
+            shift
             help
             exit
             ;;
+        -v|--verbose)
+            shift
+            verbose=$((verbose + 1))
+            ;;
         -V|--version)
+            shift
             out "$program_version"
             ;;
         --program-command)
+            shift
             out "$program_command"
             ;;
         --program-version)
+            shift
             out "$program_version"
             ;;
         --program-updated)
+            shift
             out "$program_version"
             ;;
         --program-license)
+            shift
             out "$program_license"
             ;;
         --program-website)
+            shift
             out "$program_website"
             ;;
         --program-contact)
+            shift
             out "$program_contact"
             ;;        
-        # Anything remaining is treated as content not a parseable option
+        -o|--output)
+            shift
+            output="$1";
+            shift
+            ;;        
         *)
-            break
+            content="$1"
+            shift
+            if [ -n "${output+1}" ]; then
+                if [ $verbose -gt 0 ]; then
+                    out "curl_chatgpt --output \"$output\" \"$content\""
+                fi
+                curl_chatgpt "$content" > "$output"
+                unset output
+            else 
+                if [ $verbose -gt 0 ]; then
+                    out "curl_chatgpt \"$content\""
+                fi
+                curl_chatgpt "$content"
+            fi
             ;;
     esac
-    shift
-done
-
-for content in "$@"; do
-    curl_chatgpt "$content"
 done
 
 exit $EX_OK
