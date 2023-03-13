@@ -1,30 +1,53 @@
 #!/bin/sh
-
-##
-# Curl shell script to connect to the OpenAI ChatGPT API,
-# and print the result's choice's message content as text.
-#
-# Syntax:
-#
-#     curl-chatgpt <content>
-#
-# Example:
-#
-#     curl-chatgpt "What is the meaning of life?"
-#
-# ## Setup
-#
-# To use this program, you need to first do this:
-#
-#   1. Get your own OpenAI ChatGPT API key from
-#      https://platform.openai.com/account/api-keys
-#
-#   2. Export the key into your local environment:
-#      export OPENAI_API_KEY=<KEY>
-##
-
-# Set safeguards
 set -euf
+
+## Program Tracking
+
+program_command="curl-chatgpt"
+program_version="1.0.0"
+program_updated="2023-03-13T05:55:35Z"
+program_license="MIT or Apache-2 or GPL-2.0 or GPL-3.0 or contact us for more"
+program_website="https://github.com/sixarm/curl-chatgpt"
+program_contact="Joel Parker Henderson (joel@sixarm.com)"
+
+## Help Function
+
+help(){
+cat << EOF
+curl-chatgpt
+
+Curl shell script to connect to the OpenAI ChatGPT API,
+and print the result's choice's message content as text.
+
+Syntax:
+
+    curl-chatgpt <content>
+
+Example:
+
+    curl-chatgpt "What is the meaning of life?"
+
+## Setup
+
+To use this program, you need to first do this:
+
+  1. Get your own OpenAI ChatGPT API key from
+     https://platform.openai.com/account/api-keys
+
+  2. Export the key into your local environment:
+     export OPENAI_API_KEY=<KEY>
+
+## Tracking
+
+  * Command: $program_command
+  * Version: $program_version
+  * Updated: $program_updated
+  * License: $program_license
+  * Website: $program_website
+  * Contact: $program_contact
+  
+EOF
+}
 
 ##
 # Exit codes
@@ -41,6 +64,27 @@ EX_UNAVAILABLE=69
 ## 
 # Utilties from https://github.com/sixarm/sixarm-unix-shell-functions
 ##
+
+# out: print output message to stdout.
+#
+# Example:
+# ```
+# out "my message"
+# => my message
+# ```
+#
+# We use `printf` instead of `echo` because `printf` is more consistent
+# on more systems, such a for escape sequence handling.
+#
+# Compare:
+#
+#   * Use the `out` function to print to STDOUT.
+#
+#   * Use the `err` function to print to STDERR.
+#
+out() {
+        printf %s\\n "$*"
+}
 
 # die: print error message to stderr, then exit with error code.
 #
@@ -100,6 +144,48 @@ curl_chatgpt() {
 
 cmd_or_die curl
 cmd_or_die jq
+
+# Process command line options
+while :; do
+    case $1 in
+        # Two hyphens ends the options parsing
+        --)
+            shift
+            break
+            ;;
+        # Print help by calling a help() function that you define later
+        -h|--help)
+            help
+            exit
+            ;;
+        -V|--version)
+            out "$program_version"
+            ;;
+        --program-command)
+            out "$program_command"
+            ;;
+        --program-version)
+            out "$program_version"
+            ;;
+        --program-updated)
+            out "$program_version"
+            ;;
+        --program-license)
+            out "$program_license"
+            ;;
+        --program-website)
+            out "$program_website"
+            ;;
+        --program-contact)
+            out "$program_contact"
+            ;;        
+        # Anything remaining is treated as content not a parseable option
+        *)
+            break
+            ;;
+    esac
+    shift
+done
 
 for content in "$@"; do
     curl_chatgpt "$content"
