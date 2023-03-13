@@ -21,9 +21,9 @@ and print the result's choice's message content as text.
 
 Syntax:
 
-    curl-chatgpt <content>
+    curl-chatgpt <prompt-content>
 
-    curl-chatgpt --output <output-file> <content>
+    curl-chatgpt --output <output-file> <prompt-content>
 
     curl-chatgpt --input <input-file>
 
@@ -35,9 +35,9 @@ Examples:
 
     curl-chatgpt --output result.txt "What is the meaning of life?"
 
-    curl-chatgpt --input request.txt
+    curl-chatgpt --input prompt.txt
 
-    curl-chatgpt --input request.txt --output result.txt
+    curl-chatgpt --input prompt.txt --output result.txt
 
 ## Setup
 
@@ -66,6 +66,9 @@ To use this program, you need to first do this:
   * -o --output <file>:
       output the response content text into a new file
 
+  * -c --content <text>:
+      explicitly provide a request content prompt string
+
   * --program-command:
       print the program command name
 
@@ -87,6 +90,16 @@ To use this program, you need to first do this:
   * --program-website:
       print the program website URL
 
+## Repetition
+
+The options for --input, --output, and --content may be repeated.
+
+Examples:
+
+    curl-chatgpt "prompt 1" "prompt 2" "prompt 3"
+
+    curl-chatgpt -i in1.txt -o out1.txt -i in2.txt -o out2.txt
+
 ## Tracking
 
   * Command: $program_command
@@ -100,7 +113,8 @@ EOF
 }
 
 ## 
-# Utilties from https://github.com/sixarm/sixarm-unix-shell-functions
+# SixArm unix shell functions:
+# https://github.com/sixarm/sixarm-unix-shell-functions
 ##
 
 # Exit code: OK i.e the program run is a success.
@@ -266,6 +280,12 @@ while [ $# -gt 0 ]; do
             shift
             output="$1"
             shift
+            ;;        
+        -c|--content)
+            shift
+            content="$1"
+            shift
+            curl_chatgpt_wrapper "$content"
             ;;        
         --program-command)
             shift
