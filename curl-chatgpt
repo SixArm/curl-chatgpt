@@ -23,9 +23,21 @@ Syntax:
 
     curl-chatgpt <content>
 
-Example:
+    curl-chatgpt --output <output-file> <content>
+
+    curl-chatgpt --input <input-file>
+
+    curl-chatgpt --input <input-file> --output <output-file>
+
+Examples:
 
     curl-chatgpt "What is the meaning of life?"
+
+    curl-chatgpt --output result.txt "What is the meaning of life?"
+
+    curl-chatgpt --input request.txt
+
+    curl-chatgpt --input request.txt --output result.txt
 
 ## Setup
 
@@ -36,6 +48,44 @@ To use this program, you need to first do this:
 
   2. Export the key into your local environment:
      export OPENAI_API_KEY=<KEY>
+
+## Options
+
+  * -h --help: 
+      print helpful information
+
+  * -v --verbose: 
+      print diagnostic information; use twice for more information
+
+  * -V --version: 
+      print the program version number
+
+  * -i --input <file>:
+      input the request content text from an exiting file
+
+  * -o --output <file>:
+      output the response content text into a new file
+
+  * --program-command:
+      print the program command name
+
+  * --program-version:
+      print the program version number
+
+  * --program-updated:
+      print the program updated date
+
+  * --program-license:
+      print the program license name
+
+  * --program-website:
+      print the program website URL
+
+  * --program-contact:
+      print the program contact information for the maintainer
+
+  * --program-website:
+      print the program website URL
 
 ## Tracking
 
@@ -129,24 +179,22 @@ cmd_or_die() {
 
 curl_cmd() {
     case $verbose in
-        0)
-            out "curl --silent"
+        0|1)
+            printf %s "curl --silent"
             ;;
-        1)
-            out "curl"
+        2)
+            printf %s "curl"
             ;;
         *)
-            out "curl --verbose"
+            printf %s "curl --verbose"
             ;;
     esac
-    out "curl"
 }
 
 curl_chatgpt() {
-    if [ $verbose -gt 1 ]; then
-        set -x
-    fi
-    $(curl_cmd) https://api.openai.com/v1/chat/completions \
+    curl=$(curl_cmd)
+    if [ $verbose -ge 2 ]; then set -x; fi
+    $curl "https://api.openai.com/v1/chat/completions" \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d "{
@@ -154,7 +202,28 @@ curl_chatgpt() {
     \"messages\": [{\"role\": \"user\", \"content\": \"$1\"}] 
     }" | 
     jq -r '.choices[0].message.content'
-    set +x
+    if [ $verbose -ge 2 ]; then set +x; fi
+}
+
+curl_chatgpt_wrapper() {
+    content="$1"
+    if [ $verbose -gt 0 ]; then
+        msg="curl_chatgpt"
+        if [ -n "${input+1}" ]; then
+            msg="$msg --input \"$input\""
+        fi
+        if [ -n "${output+1}" ]; then
+            msg="$msg --output \"$output\""
+        fi
+        out "$msg \"$content\""
+    fi
+    if [ -n "${output+1}" ]; then
+        curl_chatgpt "$content" > "$output"
+    else 
+        curl_chatgpt "$content"
+    fi
+    unset input
+    unset output
 }
 
 cmd_or_die curl
@@ -183,6 +252,21 @@ while [ $# -gt 0 ]; do
             shift
             out "$program_version"
             ;;
+        -i|--input)
+            shift
+            input="$1"
+            shift
+            content=$(
+                tr '[:space:]' ' ' < "$input" | 
+                sed 's/[[:space:]][[:space:]]*/ /g; s/^[[:space:]]*//; s/[[:space:]]*$//;'
+            )
+            curl_chatgpt_wrapper "$content"
+            ;;
+        -o|--output)
+            shift
+            output="$1"
+            shift
+            ;;        
         --program-command)
             shift
             out "$program_command"
@@ -193,7 +277,7 @@ while [ $# -gt 0 ]; do
             ;;
         --program-updated)
             shift
-            out "$program_version"
+            out "$program_updated"
             ;;
         --program-license)
             shift
@@ -206,27 +290,10 @@ while [ $# -gt 0 ]; do
         --program-contact)
             shift
             out "$program_contact"
-            ;;        
-        -o|--output)
-            shift
-            output="$1";
-            shift
-            ;;        
+            ;;
         *)
-            content="$1"
+            curl_chatgpt_wrapper "$1"
             shift
-            if [ -n "${output+1}" ]; then
-                if [ $verbose -gt 0 ]; then
-                    out "curl_chatgpt --output \"$output\" \"$content\""
-                fi
-                curl_chatgpt "$content" > "$output"
-                unset output
-            else 
-                if [ $verbose -gt 0 ]; then
-                    out "curl_chatgpt \"$content\""
-                fi
-                curl_chatgpt "$content"
-            fi
             ;;
     esac
 done
