@@ -16,8 +16,13 @@ help(){
 cat << EOF
 curl-chatgpt
 
-Curl shell script to connect to the OpenAI ChatGPT API,
-and print the result's choice's message content as text.
+This is a unix shell script to connect to the OpenAI ChatGPT API,
+use your own OpenAI API KEY to make request with prompt content, 
+receive a result choice, and print its message content as text.
+
+This script is deliberately simple to use as is, and also is
+built so you can edit the source code if you want to change it.
+The dependencies are POSIX shell, curl command, and jq command.
 
 Syntax:
 
@@ -49,13 +54,15 @@ To use this program, you need to first do this:
   2. Export the key into your local environment:
      export OPENAI_API_KEY=<KEY>
 
+  3. Be sure your system has the curl command and jq command.
+
 ## Options
 
   * -h --help: 
       print helpful information
 
   * -v --verbose: 
-      print diagnostic information; use twice for more information
+      print diagnostic information; use 2x or 3x for more
 
   * -V --version: 
       print the program version number
@@ -87,9 +94,6 @@ To use this program, you need to first do this:
   * --program-contact:
       print the program contact information for the maintainer
 
-  * --program-website:
-      print the program website URL
-
 ## Repetition
 
 The options for --input, --output, and --content may be repeated.
@@ -97,6 +101,8 @@ The options for --input, --output, and --content may be repeated.
 Examples:
 
     curl-chatgpt "prompt 1" "prompt 2" "prompt 3"
+
+    curl-chatgpt -o out1.txt -c "prompt 1" -o out2.txt -c "prompt 2"
 
     curl-chatgpt -i in1.txt -o out1.txt -i in2.txt -o out2.txt
 
