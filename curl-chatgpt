@@ -260,7 +260,6 @@ while [ $# -gt 0 ]; do
             shift
             break
             ;;
-        # Print help by calling a help() function that you define later
         -h|--help)
             shift
             help
