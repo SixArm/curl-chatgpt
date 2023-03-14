@@ -22,6 +22,7 @@ receive a result choice, and print its message content as text.
 
 This script is deliberately simple to use as is, and also is
 built so you can edit the source code if you want to change it.
+
 The dependencies are POSIX shell, curl command, and jq command.
 
 Syntax:
@@ -244,6 +245,7 @@ curl_chatgpt_wrapper() {
     fi
     unset input
     unset output
+    unset content
 }
 
 cmd_or_die curl
