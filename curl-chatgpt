@@ -5,8 +5,9 @@ set -euf
 
 program_command="curl-chatgpt"
 program_version="1.0.0"
+program_created="2023-03-11T20:50:17Z"
 program_updated="2023-03-13T05:55:35Z"
-program_license="MIT or Apache-2 or GPL-2.0 or GPL-3.0 or contact us for more"
+program_license="GPL-2.0 or GPL-3.0 or contact us for more"
 program_website="https://github.com/sixarm/curl-chatgpt"
 program_contact="Joel Parker Henderson (joel@sixarm.com)"
 
@@ -83,6 +84,9 @@ To use this program, you need to first do this:
   * --program-version:
       print the program version number
 
+  * --program-created:
+      print the program created date
+
   * --program-updated:
       print the program updated date
 
@@ -111,6 +115,7 @@ Examples:
 
   * Command: $program_command
   * Version: $program_version
+  * Created: $program_updated
   * Updated: $program_updated
   * License: $program_license
   * Website: $program_website
@@ -124,13 +129,13 @@ EOF
 # https://github.com/sixarm/sixarm-unix-shell-functions
 ##
 
-# Exit code: OK i.e the program run is a success.
-EX_OK=0
+# Exit SUCCESS i.e the program run worked correctly.
+EXIT_SUCCESS=0
 
 # Exit code: a service is unavailable. This can occur if a support program or
 # file does not exist. This can also be used as a catchall message when
 # something you wanted to do does not work, but you do not know why.
-EX_UNAVAILABLE=69
+EXIT_UNAVAILABLE=69
 
 # out: print output message to stdout.
 #
@@ -191,7 +196,7 @@ cmd() {
 # => exit 1
 # ```
 cmd_or_die() {
-        cmd "$1" || die "$EX_UNAVAILABLE" "Command needed: $1"
+        cmd "$1" || die "$EXIT_UNAVAILABLE" "Command needed: $1"
 }
 
 ##
@@ -302,6 +307,10 @@ while [ $# -gt 0 ]; do
             shift
             out "$program_version"
             ;;
+        --program-created)
+            shift
+            out "$program_created"
+            ;;
         --program-updated)
             shift
             out "$program_updated"
@@ -325,4 +334,4 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-exit $EX_OK
+exit $EXIT_SUCCESS

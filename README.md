@@ -67,6 +67,9 @@ To use this program, you need to first do this:
   * `--program-version`:
       print the program version number
 
+  * `--program-created`:
+      print the program updated date
+
   * `--program-updated`:
       print the program updated date
 
@@ -96,7 +99,8 @@ Examples:
 
   * Command: curl-chatgpt
   * Version: 1.0.0
+  * Created: 2023-03-11T20:50:17Z
   * Updated: 2023-03-13T05:55:35Z
-  * License: MIT or Apache-2 or GPL-2.0 or GPL-3.0 or contact us for more
+  * License: GPL-2.0 or GPL-3.0 or contact us for more
   * Website: https://github.com/sixarm/curl-chatgpt
   * Contact: Joel Parker Henderson (joel@sixarm.com)
