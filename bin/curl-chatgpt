@@ -4,9 +4,9 @@ set -euf
 ## Program Tracking
 
 program_command="curl-chatgpt"
-program_version="1.0.0"
+program_version="1.1.0"
 program_created="2023-03-11T20:50:17Z"
-program_updated="2023-03-13T05:55:35Z"
+program_updated="2023-03-23T18:08:13Z"
 program_license="GPL-2.0 or GPL-3.0 or contact us for more"
 program_website="https://github.com/sixarm/curl-chatgpt"
 program_contact="Joel Parker Henderson (joel@sixarm.com)"
@@ -328,7 +328,7 @@ while [ $# -gt 0 ]; do
             out "$program_contact"
             ;;
         *)
-            curl_chatgpt_wrapper "$1"
+            curl_chatgpt_wrapper "$@"
             shift
             ;;
     esac

@@ -98,9 +98,9 @@ Examples:
 ## Tracking
 
   * Command: curl-chatgpt
-  * Version: 1.0.0
+  * Version: 1.1.0
   * Created: 2023-03-11T20:50:17Z
-  * Updated: 2023-03-13T05:55:35Z
+  * Updated: 2023-03-23T18:08:13Z
   * License: GPL-2.0 or GPL-3.0 or contact us for more
   * Website: https://github.com/sixarm/curl-chatgpt
   * Contact: Joel Parker Henderson (joel@sixarm.com)
