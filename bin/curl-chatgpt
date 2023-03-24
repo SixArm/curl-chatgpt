@@ -1,6 +1,9 @@
 #!/bin/sh
 set -euf
 
+# Include https://github.com/SixArm/posix-shell-script-kit
+. "$(dirname "$(readlink -f "$0")")/posix-shell-script-kit"
+
 ## Program Tracking
 
 program_command="curl-chatgpt"
@@ -124,81 +127,6 @@ Examples:
 EOF
 }
 
-## 
-# SixArm unix shell functions:
-# https://github.com/sixarm/sixarm-unix-shell-functions
-##
-
-# Exit SUCCESS i.e the program run worked correctly.
-EXIT_SUCCESS=0
-
-# Exit code: a service is unavailable. This can occur if a support program or
-# file does not exist. This can also be used as a catchall message when
-# something you wanted to do does not work, but you do not know why.
-EXIT_UNAVAILABLE=69
-
-# out: print output message to stdout.
-#
-# Example:
-# ```
-# out "my message"
-# => my message
-# ```
-#
-# We use `printf` instead of `echo` because `printf` is more consistent
-# on more systems, such a for escape sequence handling.
-#
-# Compare:
-#
-#   * Use the `out` function to print to STDOUT.
-#
-#   * Use the `err` function to print to STDERR.
-#
-out() {
-        printf %s\\n "$*"
-}
-
-# die: print error message to stderr, then exit with error code.
-#
-# Example:
-# ```
-# die 1 "my message"
-# STDERR=> my message
-# => exit 1
-# ```
-die() {
-        n="$1" ; shift ; >&2 printf %s\\n "$*" ; exit "$n"
-}
-
-# cmd: return true iff a command exists.
-#
-# Example:
-# ```
-# cmd grep
-# => true
-#
-# cmd curl
-# => false
-# ```
-cmd() {
-        command -v "$1" >/dev/null 2>&1
-}
-
-# cmd_or_die: ensure a command exists.
-#
-# Example:
-# ```
-# cmd_or_die grep
-# => true
-#
-# cmd_or_die curl
-# STDERR=> Command needed: curl
-# => exit 1
-# ```
-cmd_or_die() {
-        cmd "$1" || die "$EXIT_UNAVAILABLE" "Command needed: $1"
-}
-
 ##
 # Core
 ##
@@ -253,8 +181,8 @@ curl_chatgpt_wrapper() {
     unset content
 }
 
-cmd_or_die curl
-cmd_or_die jq
+command_exists_or_die curl
+command_exists_or_die jq
 verbose=0
 
 # Process command line options
