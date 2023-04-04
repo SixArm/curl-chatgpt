@@ -1,0 +1,18 @@
+{
+    "id": "cmpl-CEY4bnpAlfuoaBWzI693lW2c8f4dq",
+    "object": "text_completion",
+    "created": 1680650350,
+    "model": "example-model-name",
+    "choices": [
+      {
+        "message": {
+            "content": "Alpha bravo charlie delta echo foxtrot"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1,
+      "completion_tokens": 2,
+      "total_tokens": 3
+    }
+  }
