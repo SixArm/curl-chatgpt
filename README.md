@@ -33,13 +33,16 @@ Examples:
 
 To use this program, you need to first do this:
 
-  1. Get your own OpenAI ChatGPT API key from
+  1. Ensure you have a payment plan and credits:
+     https://platform.openai.com/settings/organization/billing/overview
+
+  2. Get your own OpenAI ChatGPT API key from
      https://platform.openai.com/account/api-keys
 
-  2. Export the key into your local environment:
+  3. Export the key into your local environment:
      `export OPENAI_API_KEY=<KEY>`
 
-  3. Be sure your system has the curl command and jq command.
+  4. Be sure your system has the curl command and jq command.
 
 ## Options
 
@@ -95,12 +98,35 @@ Examples:
     curl-chatgpt -i in1.txt -o out1.txt -i in2.txt -o out2.txt
 
 
+## Troubleshooting
+
+If you have problems, then try this example code from OpenAI, and you should see relevant error messages:
+
+```sh
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'
+```
+
 ## Tracking
 
   * Command: curl-chatgpt
-  * Version: 1.1.0
+  * Version: 1.2.0
   * Created: 2023-03-11T20:50:17Z
-  * Updated: 2023-03-23T18:08:13Z
+  * Updated: 2024-10-22T08:42:08Z
   * License: GPL-2.0 or GPL-3.0 or contact us for more
   * Website: https://github.com/sixarm/curl-chatgpt
   * Contact: Joel Parker Henderson (joel@sixarm.com)

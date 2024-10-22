@@ -7,9 +7,9 @@ set -euf
 ## Program Tracking
 
 program_command="curl-chatgpt"
-program_version="1.1.0"
+program_version="1.2.0"
 program_created="2023-03-11T20:50:17Z"
-program_updated="2023-03-23T18:08:13Z"
+program_updated="2024-10-22T08:42:08Z"
 program_license="GPL-2.0 or GPL-3.0 or contact us for more"
 program_website="https://github.com/sixarm/curl-chatgpt"
 program_contact="Joel Parker Henderson (joel@sixarm.com)"
@@ -146,20 +146,34 @@ curl_cmd() {
 }
 
 curl_chatgpt() {
+    content="$1"
     curl=$(curl_cmd)
-    if [ $verbose -ge 2 ]; then set -x; fi
+    if [ "$verbose" -ge 2 ]; then set -x; fi
     $curl "https://api.openai.com/v1/chat/completions" \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d "{
     \"model\": \"gpt-3.5-turbo\",
-    \"messages\": [{\"role\": \"user\", \"content\": \"$1\"}] 
-    }" | 
-    jq -r '.choices[0].message.content'
-    if [ $verbose -ge 2 ]; then set +x; fi
+    \"messages\": [{\"role\": \"user\", \"content\": \"$content\"}] 
+    }" 
+    { set +x; } 2>/dev/null
 }
 
-curl_chatgpt_wrapper() {
+parse_response_file() {
+    response_file="$1"
+    x="$(jq -r '.choices[0].message.content' "$response_file")"
+    case "$x" in
+        null)
+            cat "$response_file"
+            exit "$EXIT_FAILURE"
+            ;;
+        *)
+            out "$x"
+            ;;
+    esac
+}
+
+request_content() {
     content="$1"
     if [ $verbose -gt 0 ]; then
         msg="curl_chatgpt"
@@ -171,14 +185,18 @@ curl_chatgpt_wrapper() {
         fi
         out "$msg \"$content\""
     fi
+    response_file="$(mktemp_file)"
+    if [ "$verbose" -ge 1 ]; then out "response_file: $response_file"; fi
+    curl_chatgpt "$content" > "$response_file"
     if [ -n "${output+1}" ]; then
-        curl_chatgpt "$content" > "$output"
+        parse_response_file "$response_file" > "$output"
     else 
-        curl_chatgpt "$content"
+        parse_response_file "$response_file"
     fi
     unset input
     unset output
     unset content
+    unset response_file
 }
 
 command_exists_or_die curl
@@ -214,7 +232,7 @@ while [ $# -gt 0 ]; do
                 tr '[:space:]' ' ' < "$input" | 
                 sed 's/[[:space:]][[:space:]]*/ /g; s/^[[:space:]]*//; s/[[:space:]]*$//;'
             )
-            curl_chatgpt_wrapper "$content"
+            request_content "$content"
             ;;
         -o|--output)
             shift
@@ -225,7 +243,7 @@ while [ $# -gt 0 ]; do
             shift
             content="$1"
             shift
-            curl_chatgpt_wrapper "$content"
+            request_content "$content"
             ;;        
         --program-command)
             shift
@@ -256,7 +274,7 @@ while [ $# -gt 0 ]; do
             out "$program_contact"
             ;;
         *)
-            curl_chatgpt_wrapper "$@"
+            request_content "$@"
             shift
             ;;
     esac
